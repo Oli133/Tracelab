@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TraceLab</string>
+    <string name="tagline">Precision PCB &amp; Schematic Studio</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_out">Sign out</string>
+    <string name="projects_title">Cloud Schematics</string>
+    <string name="new_board">New Board</string>
+    <string name="sync_now">Sync Cloud</string>
+    <string name="bom_export">BOM Export</string>
+    <string name="erc_validate">ERC / AI Audit</string>
+    <string name="export_csv">Save CSV</string>
+    <string name="export_json">Save JSON</string>
+    <string name="share_bom">Share BOM</string>
+</resources>

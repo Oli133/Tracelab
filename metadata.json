@@ -1,0 +1,6 @@
+{
+  "name": "TraceLab",
+  "description": "Drag-and-drop PCB schematic builder with real-time validation, cloud sync, and BOM export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

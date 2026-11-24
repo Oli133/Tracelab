@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidSchematic(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 80 &&
+             data.description is string && data.description.size() <= 300 &&
+             data.boardWidthMm is number && data.boardWidthMm >= 10 && data.boardWidthMm <= 500 &&
+             data.boardHeightMm is number && data.boardHeightMm >= 10 && data.boardHeightMm <= 500 &&
+             data.layerCount is int && data.layerCount >= 1 && data.layerCount <= 6 &&
+             data.gridSnapMm is number && data.gridSnapMm >= 0.5 && data.gridSnapMm <= 10 &&
+             data.components is list && data.components.size() <= 120 &&
+             (data.components.size() == 0 || data.components[0] is map) &&
+             data.wires is list && data.wires.size() <= 300 &&
+             (data.wires.size() == 0 || data.wires[0] is map) &&
+             data.componentCount is int && data.componentCount >= 0 && data.componentCount <= 120 &&
+             data.wireCount is int && data.wireCount >= 0 && data.wireCount <= 300 &&
+             data.validationErrorCount is int && data.validationErrorCount >= 0 && data.validationErrorCount <= 500 &&
+             data.validationSummary is string && data.validationSummary.size() <= 500;
+    }
+
+    match /users/{userId}/schematics/{schematicId} {
+      allow get: if isOwner(userId) && isValidId(schematicId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(schematicId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'description', 'boardWidthMm', 'boardHeightMm',
+                         'layerCount', 'gridSnapMm', 'components', 'wires',
+                         'componentCount', 'wireCount', 'validationErrorCount',
+                         'validationSummary', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'description', 'boardWidthMm', 'boardHeightMm',
+                         'layerCount', 'gridSnapMm', 'components', 'wires',
+                         'componentCount', 'wireCount', 'validationErrorCount',
+                         'validationSummary', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidSchematic(incoming());
+
+      allow update: if isOwner(userId) &&
+                       isValidId(schematicId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidSchematic(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'description', 'boardWidthMm', 'boardHeightMm',
+                         'layerCount', 'gridSnapMm', 'components', 'wires',
+                         'componentCount', 'wireCount', 'validationErrorCount',
+                         'validationSummary', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(schematicId);
+    }
+  }
+}

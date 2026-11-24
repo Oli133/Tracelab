@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "SchematicProject": {
+      "title": "SchematicProject",
+      "description": "A cloud-synced electronic schematic and PCB layout project with components, routed nets, and validation metrics.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the schematic owner."
+        },
+        "name": {
+          "type": "string",
+          "description": "Project title (1-80 characters)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short project summary (0-300 characters)."
+        },
+        "boardWidthMm": {
+          "type": "number",
+          "description": "PCB board width in millimeters (10-500)."
+        },
+        "boardHeightMm": {
+          "type": "number",
+          "description": "PCB board height in millimeters (10-500)."
+        },
+        "layerCount": {
+          "type": "integer",
+          "description": "Copper layer stackup count (1-6)."
+        },
+        "gridSnapMm": {
+          "type": "number",
+          "description": "Schematic/PCB snap grid spacing in millimeters (0.5-10)."
+        },
+        "components": {
+          "type": "array",
+          "description": "List of placed electronic components on the schematic canvas (max 120)."
+        },
+        "wires": {
+          "type": "array",
+          "description": "List of electrical net connections / PCB traces between component pins (max 300)."
+        },
+        "componentCount": {
+          "type": "integer",
+          "description": "Count of components in the schematic."
+        },
+        "wireCount": {
+          "type": "integer",
+          "description": "Count of wires/traces in the schematic."
+        },
+        "validationErrorCount": {
+          "type": "integer",
+          "description": "Current real-time ERC/DRC validation issue count."
+        },
+        "validationSummary": {
+          "type": "string",
+          "description": "Summary of the latest real-time electrical validation status."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the schematic was created (client submits FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the schematic was last synced (client submits FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "description",
+        "boardWidthMm",
+        "boardHeightMm",
+        "layerCount",
+        "gridSnapMm",
+        "components",
+        "wires",
+        "componentCount",
+        "wireCount",
+        "validationErrorCount",
+        "validationSummary",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/schematics/{schematicId}": {
+      "schema": {
+        "$ref": "#/entities/SchematicProject"
+      },
+      "description": "User-owned PCB schematic projects synchronized in real time."
+    }
+  }
+}
